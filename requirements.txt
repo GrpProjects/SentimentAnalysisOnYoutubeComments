@@ -1,0 +1,4 @@
+Flask==2.3.2
+google-api-python-client
+zcatalyst-sdk
+emoji~=1.6.3

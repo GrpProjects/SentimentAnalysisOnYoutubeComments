@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data</title>
+</head>
+<body>
+    <h1>Comments without emojis</h1>
+    <ul>
+        {% for t in tdata %}
+            <li>{{ t['TEXTCOMMENTS']['COMMENT']}} - {{t['TEXTCOMMENTS']['SENTIMENT']}}</li>
+        {% endfor %}
+    </ul>
+
+    <h1>Comments with emojis</h1>
+    <ul>
+        {% for e in edata %}
+            <li>{{ e['EMOJICOMMENTS']['COMMENT']}} - {{e['EMOJICOMMENTS']['SENTIMENT']}}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
