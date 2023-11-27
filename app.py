@@ -6,10 +6,9 @@ from datetime import datetime, timedelta
 from urllib.parse import urlparse, parse_qs
 
 sys.path.append(os.path.join(os.getcwd(),'lib'))
-print(sys.path)
-
 
 import emoji
+import matplotlib.pyplot as plt
 import googleapiclient.discovery
 import zcatalyst_sdk as zcatalyst
 from googleapiclient.errors import HttpError
@@ -19,18 +18,23 @@ from zcatalyst_sdk.exceptions import CatalystAPIError, CatalystError
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET','POST'])
+@app.route('/', methods=['GET'])
 def index():
-    if request.method == 'POST':
-        yid = parse_yid(request.form['youtube_id'])
-        pyid = fetch_and_store_comments(yid)
-        return f'''
-            <p>click here</p>
-            <form method="GET" action="{url_for('comments_page', pyid=pyid)}">
-                <input type="submit" value="show">
-            </form>
-        '''
     return render_template('index.html')
+
+
+@app.route('/processapi', methods=['POST'])
+def processapi():
+    yid = parse_yid(request.form['youtube_id'])
+    pyid = process(yid)
+    print("processfinished")
+    return pyid
+
+
+@app.route('/results/<pyid>', methods=['GET'])
+def results_page(pyid):
+    return render_template('results.html', pyid=pyid)
+
 
 @app.route('/comments/<pyid>', methods=['GET'])
 def comments_page(pyid: str):
@@ -40,7 +44,8 @@ def comments_page(pyid: str):
     tresult = zcql_service.execute_query(f"select * from TEXTCOMMENTS where yid='{pyid}'")
     return render_template('comments.html', edata=eresult, tdata=tresult)
 
-def fetch_and_store_comments(yid: str):
+
+def process(yid: str):
     zapp = zcatalyst.initialize(req=request)
     zcql_service = zapp.zcql()
     result = zcql_service.execute_query(f"select * from META where yid='{yid}'")
@@ -90,27 +95,58 @@ def fetch_and_store_comments(yid: str):
         print(e)
         return [f'An unexpected error occurred: {e}']
 
+
 def analyse_and_store_comments(zapp, emoji: bool, pyid: str, comments_list: list, insert: bool):
     tablename =  "EMOJICOMMENTS" if emoji else "TEXTCOMMENTS"
+    sentiments_list = []
     try:
         for comment in comments_list:
             table_service = zapp.datastore().table(tablename)
             sentiment= get_sentiment_result(comment)
+            sentiments_list.append(sentiment)
             row_data = {'YID': pyid, 'COMMENT': comment, 'SENTIMENT': sentiment}
             if insert:
                 table_service.insert_row(row_data)
             else:
                 table_service.update_row(row_data)
+        generate_pie_chart(sentiments_list, emoji)
     except CatalystAPIError as e:
         print(e)
     except CatalystError as e:
         print(e)
+
+
+def generate_pie_chart(sentiments_list, emoji):
+    filename = "EMOJICHART" if emoji else "TEXTCHART"
+    total_count = len(sentiments_list)
+    if total_count==0:
+        return
+    positive_count = sentiments_list.count('POSITIVE')
+    negative_count = sentiments_list.count('NEGATIVE')
+    neutral_count = sentiments_list.count('NEUTRAL')
+
+    positive_percentage = (positive_count / total_count) * 100
+    negative_percentage = (negative_count / total_count) * 100
+    neutral_percentage = (neutral_count / total_count) * 100
+
+    labels = ['POSITIVE', 'NEGATIVE', 'NEUTRAL']
+    sizes = [positive_percentage, negative_percentage, neutral_percentage]
+    colors = ['lightcoral', 'lightskyblue', 'lightgreen']
+    explode = (0.1, 0, 0)
+
+    plt.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', shadow=True, startangle=140)
+    plt.axis('equal')
+    
+    plt.savefig(os.getcwd() + f'/static/{filename}.png')
+    
+    plt.close()
 
 def parse_yid(yid: str) -> str:
     if not yid.startswith(('https', 'http')):
         return yid
     parsed_url = urlparse(yid)
     return parse_qs(parsed_url.query).get('v', "")[0]
+
 
 def split_sentences_with_and_without_emoji(comments_list):
     comments_with_emoji = []
@@ -123,6 +159,7 @@ def split_sentences_with_and_without_emoji(comments_list):
             comments_without_emoji.append(comments)
 
     return comments_with_emoji, comments_without_emoji
+
 
 def get_sentiment_result(comment: str):
     api_token = os.getenv('HF_KEY')

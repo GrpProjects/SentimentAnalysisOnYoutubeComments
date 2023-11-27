@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Youtube Data Fetch</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </head>
 
 <body>
-    <form method="POST">
+    <form method="POST" onsubmit="handleFormSubmission(event)">
         <label for="youtube_id">Enter youtube video id or url:</label>
         <input type="text" id="youtube_id" name="youtube_id">
         <input type="submit" value="Submit">
     </form>
 </body>
+
 </html>
