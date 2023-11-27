@@ -127,7 +127,8 @@ def split_sentences_with_and_without_emoji(comments_list):
 def get_sentiment_result(comment: str):
     api_token = os.getenv('HF_KEY')
     headers = {"Authorization": f"Bearer {api_token}"}
-    API_URL = f"https://api-inference.huggingface.co/models/nlptown/bert-base-multilingual-uncased-sentiment"
+    model_id = "nlptown/bert-base-multilingual-uncased-sentiment"
+    API_URL = f"https://api-inference.huggingface.co/models/{model_id}"
     payload = { "inputs": comment}
     sentiment_result = requests.post(API_URL, headers=headers, json=payload).json()
     print(sentiment_result)
