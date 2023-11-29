@@ -3,6 +3,8 @@ function handleFormSubmission(event) {
 
     var youtubeId = $('#youtube_id').val();
 
+    $('#loading-spinner').show();
+
     callProcessApi(youtubeId)
         .then(function (data) {
             // Call a function to handle the result and redirect
@@ -11,6 +13,10 @@ function handleFormSubmission(event) {
         .catch(function (error) {
             // Handle errors if necessary
             console.error("Error:", error);
+        })
+        .finally(function () {
+            // Hide the loading spinner
+            $('#loading-spinner').hide();
         });
 }
 

@@ -1,12 +1,14 @@
+import base64
+import io
 import os
 import re
 import sys
-import requests
 from datetime import datetime, timedelta
 from urllib.parse import urlparse, parse_qs
 
 sys.path.append(os.path.join(os.getcwd(),'lib'))
 
+import requests
 import emoji
 import matplotlib.pyplot as plt
 import googleapiclient.discovery
@@ -33,7 +35,15 @@ def processapi():
 
 @app.route('/results/<pyid>', methods=['GET'])
 def results_page(pyid):
-    return render_template('results.html', pyid=pyid)
+    zapp = zcatalyst.initialize(req=request)
+    zcql_service = zapp.zcql()
+    resp = zcql_service.execute_query(f"select * from META where ROWID='{pyid}'")
+    folder = zapp.filestore().folder(3171000000026001)
+    echart:bytes = folder.download_file(resp[0]['META']['EFID'])
+    echart_base64 = base64.b64encode(echart).decode('utf-8')
+    tchart:bytes = folder.download_file(resp[0]['META']['TFID'])
+    tchart_base64 = base64.b64encode(echart).decode('utf-8')
+    return render_template('results.html', pyid=pyid, echart=echart_base64, tchart=tchart_base64)
 
 
 @app.route('/comments/<pyid>', methods=['GET'])
@@ -98,32 +108,43 @@ def process(yid: str):
 
 def analyse_and_store_comments(zapp, emoji: bool, pyid: str, comments_list: list, insert: bool):
     tablename =  "EMOJICOMMENTS" if emoji else "TEXTCOMMENTS"
+    filename = "EMOJICHART" if emoji else "TEXTCHART"
+    filecolname = "EFID" if emoji else "TFID"
     sentiments_list = []
+    table_service = zapp.datastore().table(tablename)
+    zcql_service = zapp.zcql()
     try:
         for comment in comments_list:
-            table_service = zapp.datastore().table(tablename)
             sentiment= get_sentiment_result(comment)
             sentiments_list.append(sentiment)
             row_data = {'YID': pyid, 'COMMENT': comment, 'SENTIMENT': sentiment}
             if insert:
                 table_service.insert_row(row_data)
             else:
-                table_service.update_row(row_data)
-        generate_pie_chart(sentiments_list, emoji)
+                zcql_service.execute_query(f"update {tablename} set comment = {comment}, sentiment = {sentiment} where yid='{pyid}'")
+        chart_buffer = generate_pie_chart(pyid, sentiments_list)
+        folder = zapp.filestore().folder(3171000000026001)
+        resp = folder.upload_file(f'{pyid}-{filename}', chart_buffer)
+
+        meta_table = zapp.datastore().table("META")
+        row_data = {'ROWID': pyid, filecolname: resp['id']}
+        meta_table.update_row(row_data)
+
     except CatalystAPIError as e:
         print(e)
     except CatalystError as e:
         print(e)
 
 
-def generate_pie_chart(sentiments_list, emoji):
-    filename = "EMOJICHART" if emoji else "TEXTCHART"
+def generate_pie_chart(pyid, sentiments_list):
     total_count = len(sentiments_list)
     if total_count==0:
         return
     positive_count = sentiments_list.count('POSITIVE')
     negative_count = sentiments_list.count('NEGATIVE')
     neutral_count = sentiments_list.count('NEUTRAL')
+
+    print("data" -  positive_count,negative_count,neutral_count,total_count)
 
     positive_percentage = (positive_count / total_count) * 100
     negative_percentage = (negative_count / total_count) * 100
@@ -136,10 +157,15 @@ def generate_pie_chart(sentiments_list, emoji):
 
     plt.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', shadow=True, startangle=140)
     plt.axis('equal')
-    
-    plt.savefig(os.getcwd() + f'/static/{filename}.png')
-    
+    chart = io.BytesIO()
+    plt.savefig(chart, format='png')
     plt.close()
+
+    chart.seek(0)
+    chart_buffer = io.BufferedReader(chart)
+    return chart_buffer
+    
+
 
 def parse_yid(yid: str) -> str:
     if not yid.startswith(('https', 'http')):

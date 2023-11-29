@@ -5,6 +5,11 @@
     <title>Youtube Data Fetch</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <style>
+        #loading-spinner {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -12,6 +17,8 @@
         <label for="youtube_id">Enter youtube video id or url:</label>
         <input type="text" id="youtube_id" name="youtube_id">
         <input type="submit" value="Submit">
+        <br>
+        <div id="loading-spinner">Processing data please wait...</div>
     </form>
 </body>
 
