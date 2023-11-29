@@ -42,7 +42,7 @@ def results_page(pyid):
     echart:bytes = folder.download_file(resp[0]['META']['EFID'])
     echart_base64 = base64.b64encode(echart).decode('utf-8')
     tchart:bytes = folder.download_file(resp[0]['META']['TFID'])
-    tchart_base64 = base64.b64encode(echart).decode('utf-8')
+    tchart_base64 = base64.b64encode(tchart).decode('utf-8')
     return render_template('results.html', pyid=pyid, echart=echart_base64, tchart=tchart_base64)
 
 
@@ -122,7 +122,7 @@ def analyse_and_store_comments(zapp, emoji: bool, pyid: str, comments_list: list
                 table_service.insert_row(row_data)
             else:
                 zcql_service.execute_query(f"update {tablename} set comment = {comment}, sentiment = {sentiment} where yid='{pyid}'")
-        chart_buffer = generate_pie_chart(pyid, sentiments_list)
+        chart_buffer = generate_pie_chart(sentiments_list)
         folder = zapp.filestore().folder(3171000000026001)
         resp = folder.upload_file(f'{pyid}-{filename}', chart_buffer)
 
@@ -136,7 +136,7 @@ def analyse_and_store_comments(zapp, emoji: bool, pyid: str, comments_list: list
         print(e)
 
 
-def generate_pie_chart(pyid, sentiments_list):
+def generate_pie_chart(sentiments_list):
     total_count = len(sentiments_list)
     if total_count==0:
         return
@@ -144,11 +144,11 @@ def generate_pie_chart(pyid, sentiments_list):
     negative_count = sentiments_list.count('NEGATIVE')
     neutral_count = sentiments_list.count('NEUTRAL')
 
-    print("data" -  positive_count,negative_count,neutral_count,total_count)
-
     positive_percentage = (positive_count / total_count) * 100
     negative_percentage = (negative_count / total_count) * 100
     neutral_percentage = (neutral_count / total_count) * 100
+
+    print("data -", positive_percentage,negative_percentage,neutral_percentage)
 
     labels = ['POSITIVE', 'NEGATIVE', 'NEUTRAL']
     sizes = [positive_percentage, negative_percentage, neutral_percentage]
