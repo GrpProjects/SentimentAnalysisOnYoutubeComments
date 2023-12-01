@@ -5,6 +5,7 @@
 	"env_variables": {},
 	"memory": 256,
 	"scripts": {
-		"predeploy": "python3 -m pip install -r ./requirements.txt -t ./lib --upgrade"
+		"predeploy": "python3 -m pip install -r ./requirements.txt -t ./lib --upgrade",
+		"preserve": "python3 -m pip install -r ./requirements.txt -t ./lib --upgrade"
 	}
 }

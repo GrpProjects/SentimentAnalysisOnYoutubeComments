@@ -8,13 +8,13 @@ from urllib.parse import urlparse, parse_qs
 
 sys.path.append(os.path.join(os.getcwd(),'lib'))
 
-import requests
 import emoji
+import requests
 import matplotlib.pyplot as plt
 import googleapiclient.discovery
 import zcatalyst_sdk as zcatalyst
 from googleapiclient.errors import HttpError
-from flask import Flask, request, render_template, url_for
+from flask import Flask, request, render_template
 from zcatalyst_sdk.exceptions import CatalystAPIError, CatalystError
 
 
@@ -115,6 +115,7 @@ def analyse_and_store_comments(zapp, emoji: bool, pyid: str, comments_list: list
     zcql_service = zapp.zcql()
     try:
         for comment in comments_list:
+            comment = truncate_sentence(comment)
             sentiment= get_sentiment_result(comment)
             sentiments_list.append(sentiment)
             row_data = {'YID': pyid, 'COMMENT': comment, 'SENTIMENT': sentiment}
@@ -186,6 +187,12 @@ def split_sentences_with_and_without_emoji(comments_list):
 
     return comments_with_emoji, comments_without_emoji
 
+def truncate_sentence(sentence, max_length=512):
+    if len(sentence) > max_length:
+        truncated_sentence = sentence[:max_length]
+        return truncated_sentence
+    else:
+        return sentence
 
 def get_sentiment_result(comment: str):
     api_token = os.getenv('HF_KEY')
