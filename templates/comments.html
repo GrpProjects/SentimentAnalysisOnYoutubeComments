@@ -2,20 +2,25 @@
 <html>
 <head>
     <title>Data</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='comments-styles.css') }}">
 </head>
 <body>
-    <h1>Comments without emojis</h1>
-    <ul>
-        {% for t in tdata %}
-            <li>{{ t['TEXTCOMMENTS']['COMMENT']}} - {{t['TEXTCOMMENTS']['SENTIMENT']}}</li>
-        {% endfor %}
-    </ul>
+    <div class="comments-container left">
+        <div class="comments-heading">Comments without emojis</div>
+        <ul>
+            {% for t in tdata %}
+                <li>{{ t['TEXTCOMMENTS']['COMMENT'] }} - {{t['TEXTCOMMENTS']['SENTIMENT']}}</li>
+            {% endfor %}
+        </ul>
+    </div>
 
-    <h1>Comments with emojis</h1>
-    <ul>
-        {% for e in edata %}
-            <li>{{ e['EMOJICOMMENTS']['COMMENT']}} - {{e['EMOJICOMMENTS']['SENTIMENT']}}</li>
-        {% endfor %}
-    </ul>
+    <div class="comments-container right">
+        <div class="comments-heading">Comments with emojis</div>
+        <ul>
+            {% for e in edata %}
+                <li>{{ e['EMOJICOMMENTS']['COMMENT'] }} - {{e['EMOJICOMMENTS']['SENTIMENT']}}</li>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 </html>

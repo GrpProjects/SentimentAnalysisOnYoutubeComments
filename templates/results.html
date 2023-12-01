@@ -3,15 +3,16 @@
 
 <head>
     <title>Analysis result</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="https://www.youtube.com/iframe_api"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='result-styles.css') }}">
+    <script async src="https://www.youtube.com/iframe_api"></script>
     <script>
         const yid = "{{ yid }}";
         window.onload = function () {
             onYouTubeIframeAPIReady();
         };
     </script>
-    <script src="{{ url_for('static', filename='ytscript.js') }}"></script>
+    <script async src="{{ url_for('static', filename='yt_script.js') }}"></script>
 </head>
 
 <body>
@@ -40,8 +41,20 @@
     </div>
 
     <h3 class="center-content">Overall Product Review - {{overall}} </h3>
+    <div class="center-content" id="buy-message"></div>
 
+    <script>
+        const buyMessageContainer = document.getElementById('buy-message');
+        const overallValue = "{{ overall }}";
 
+        if (overallValue === 'POSITIVE') {
+            buyMessageContainer.innerText = "Good to go! You can buy the product.";
+        } else if (overallValue === 'NEGATIVE') {
+            buyMessageContainer.innerText = "Better look for other good product.";
+        } else {
+            buyMessageContainer.innerText = "Think before buying the product.";
+        }
+    </script>
 </body>
 
 </html>
