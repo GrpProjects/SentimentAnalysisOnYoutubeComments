@@ -3,21 +3,41 @@
 
 <head>
     <title>Analysis result</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        const yid = "{{ yid }}";
+        window.onload = function () {
+            onYouTubeIframeAPIReady();
+        };
+    </script>
+    <script src="{{ url_for('static', filename='ytscript.js') }}"></script>
 </head>
 
 <body>
-    <h2>Analysis Results</h2>
-    <div>
-        <h4>Text Results Chart</h4>
-        <img src="data:image/png;base64,{{ echart }}" alt="can't able to load chart for text results">
+    <div id="player"></div>
+    <p class="center-content"><a href="{{ url_for('comments_page', pyid=pyid) }}">Click here to view comments of this video and its sentiment</a></p>
+    <br>
+
+    <div class="center-content">
+        <h2>Analysis Results</h2>
     </div>
     
-    <div>
-        <h4>Emoji Results Chart</h4>
-        <img src="data:image/png;base64,{{ tchart }}" alt="can't able to load chart for emoji results">
+    <div class="clearfix">
+        <div class="left-image">
+            <div class="image-container">
+                <h4>Text Results Chart</h4>
+                <img src="data:image/png;base64,{{ echart }}" alt="can't able to load chart for text results">
+            </div>
+        </div>
+        
+        <div class="right-image">
+            <div class="image-container">
+                <h4>Emoji Results Chart</h4>
+                <img src="data:image/png;base64,{{ tchart }}" alt="can't able to load chart for emoji results">
+            </div>
+        </div>
     </div>
-
-    <p><a href="{{ url_for('comments_page', pyid=pyid) }}">Click here to show comments and its sentiment</a></p>
 </body>
 
 </html>

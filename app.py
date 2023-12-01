@@ -43,7 +43,7 @@ def results_page(pyid):
     echart_base64 = base64.b64encode(echart).decode('utf-8')
     tchart:bytes = folder.download_file(resp[0]['META']['TFID'])
     tchart_base64 = base64.b64encode(tchart).decode('utf-8')
-    return render_template('results.html', pyid=pyid, echart=echart_base64, tchart=tchart_base64)
+    return render_template('results.html', pyid=pyid, echart=echart_base64, tchart=tchart_base64, yid=resp[0]['META']['YID'])
 
 
 @app.route('/comments/<pyid>', methods=['GET'])

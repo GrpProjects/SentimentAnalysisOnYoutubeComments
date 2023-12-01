@@ -1,0 +1,42 @@
+body {
+    margin-top: 50px;
+    margin-bottom: 50px;
+    margin-left: 160px;
+    margin-right: 160px;
+}
+
+#player {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+    width: 1000px;
+    margin: auto;
+}
+
+.center-content {
+    text-align: center;
+}
+
+.image-container {
+    text-align: center; /* Center the text above the image */
+}
+
+.left-image {
+    max-width: 45%;
+    height: auto;
+    float: left;
+}
+
+.right-image {
+    max-width: 45%;
+    height: auto;
+    float: right;
+}
+
+
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
