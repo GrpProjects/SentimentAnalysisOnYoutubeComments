@@ -43,7 +43,9 @@ def results_page(pyid):
     echart_base64 = base64.b64encode(echart).decode('utf-8')
     tchart:bytes = folder.download_file(resp[0]['META']['TFID'])
     tchart_base64 = base64.b64encode(tchart).decode('utf-8')
-    return render_template('results.html', pyid=pyid, echart=echart_base64, tchart=tchart_base64, yid=resp[0]['META']['YID'])
+    yid=resp[0]['META']['YID']
+    overall=resp[0]['META']['OSENTIMENT']
+    return render_template('results.html', pyid=pyid, echart=echart_base64, tchart=tchart_base64, yid=yid, overall=overall)
 
 
 @app.route('/comments/<pyid>', methods=['GET'])
@@ -94,8 +96,24 @@ def process(yid: str):
             pyid = tresp['ROWID']
 
         comments_with_emoji,comments_without_emoji = split_sentences_with_and_without_emoji(comments_list)
-        analyse_and_store_comments(zapp, True, pyid, comments_with_emoji, new)
-        analyse_and_store_comments(zapp, False, pyid, comments_without_emoji, new)
+        esentiment = analyse_and_store_comments(zapp, True, pyid, comments_with_emoji, new)
+        tsentiment = analyse_and_store_comments(zapp, False, pyid, comments_without_emoji, new)
+
+        positivecount = esentiment[0]+tsentiment[0]
+        negativecount = esentiment[1]+tsentiment[1]
+        neutralcount = esentiment[2]+tsentiment[2]
+
+        if positivecount > negativecount and positivecount > neutralcount:
+            overall_sentiment = "POSITIVE"
+        elif negativecount > positivecount and negativecount > neutralcount:
+            overall_sentiment = "NEGATIVE"
+        else:
+            overall_sentiment = "NEUTRAL"
+        
+        meta_table = zapp.datastore().table("META")
+        row_data = {'ROWID': pyid, "OSENTIMENT": overall_sentiment}
+        meta_table.update_row(row_data)
+
         return pyid
 
     except HttpError as e:
@@ -123,13 +141,14 @@ def analyse_and_store_comments(zapp, emoji: bool, pyid: str, comments_list: list
                 table_service.insert_row(row_data)
             else:
                 zcql_service.execute_query(f"update {tablename} set comment = {comment}, sentiment = {sentiment} where yid='{pyid}'")
-        chart_buffer = generate_pie_chart(sentiments_list)
+        chart_buffer, sentiment_counts = generate_pie_chart(sentiments_list)
         folder = zapp.filestore().folder(3171000000026001)
         resp = folder.upload_file(f'{pyid}-{filename}', chart_buffer)
 
         meta_table = zapp.datastore().table("META")
         row_data = {'ROWID': pyid, filecolname: resp['id']}
         meta_table.update_row(row_data)
+        return sentiment_counts
 
     except CatalystAPIError as e:
         print(e)
@@ -149,8 +168,6 @@ def generate_pie_chart(sentiments_list):
     negative_percentage = (negative_count / total_count) * 100
     neutral_percentage = (neutral_count / total_count) * 100
 
-    print("data -", positive_percentage,negative_percentage,neutral_percentage)
-
     labels = ['POSITIVE', 'NEGATIVE', 'NEUTRAL']
     sizes = [positive_percentage, negative_percentage, neutral_percentage]
     colors = ['lightcoral', 'lightskyblue', 'lightgreen']
@@ -164,7 +181,8 @@ def generate_pie_chart(sentiments_list):
 
     chart.seek(0)
     chart_buffer = io.BufferedReader(chart)
-    return chart_buffer
+
+    return chart_buffer, [positive_count, negative_count, neutral_count]
     
 
 
