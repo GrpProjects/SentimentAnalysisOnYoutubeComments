@@ -16,13 +16,19 @@
 </head>
 
 <body>
-    <form method="POST" onsubmit="handleFormSubmission(event)">
-        <label for="youtube_id">Enter youtube video id or url:</label>
-        <input type="text" id="youtube_id" name="youtube_id">
-        <input type="submit" value="Submit">
-        <br>
-        <div id="loading-spinner">Processing data please wait...</div>
-    </form>
+    <main>
+        <h1>Welcome to SentimentShop</h1>
+        <h5>Smarter Buying Decisions through YouTube Comments Sentiment Analysis</h5>
+        <p>This app empowers you to make informed purchase decisions by analyzing the sentiment of comments in YouTube product review videos, helping you gauge whether a product is worth buying or not.</p>
+
+        <form method="POST" onsubmit="handleFormSubmission(event)">
+            <label for="youtube_id">Enter YouTube product review video URL or ID:</label>
+            <input type="text" id="youtube_id" name="youtube_id" required>
+            <input type="submit" value="Submit">
+            <br>
+            <div id="loading-spinner">Processing data, please wait...</div>
+        </form>
+    </main>
 </body>
 
 </html>
