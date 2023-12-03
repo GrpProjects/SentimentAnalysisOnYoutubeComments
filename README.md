@@ -27,25 +27,25 @@ This project utilizes the Zoho Catalyst platform to perform sentiment analysis o
 
 Create a project in Zoho Catalyst and create the resources as below 
 
-1. Create Folders:
+1. **Create Folders**:
 
     Create a folder in your Zoho Catalyst File Store (This folder will be used to store chart files).
     
     Note: Make sure to change the given FolderID with your actual FolderID
 
-2. Create Tables:
+2. **Create Tables**:
 
     Create the following tables in your Zoho Catalyst workspace:
 
-    - META table: Used to store metadata about processed YouTube videos.
+    - **META**: Used to store metadata about processed YouTube videos.
     
         Columns: YID, OSENTIMENT, EFID, TFID. (ROWID: Primary Key and MODIFIEDTIME will be created automatically while creating the table).
 
-    - EMOJICOMMENTS: Used to store comments with emojis.
+    - **EMOJICOMMENTS**: Used to store comments with emojis.
         
         Columns: YID (Foreign Key referencing META), COMMENT, SENTIMENT.
 
-    - TEXTCOMMENTS: Used to store comments without emojis.
+    - **TEXTCOMMENTS**: Used to store comments without emojis.
         
         Columns: YID (Foreign Key referencing META), COMMENT, SENTIMENT.
 
@@ -82,6 +82,7 @@ Create a project in Zoho Catalyst and create the resources as below
     ```bash
     export MY_API_KEY=your_youtube_api_key
     export HF_KEY=your_hugging_face_api_key
+    ```
 
     Make sure to replace your_youtube_api_key and your_hugging_face_api_key with your actual API keys.
 
@@ -92,9 +93,9 @@ Create a project in Zoho Catalyst and create the resources as below
     catalyst serve
     ```
 
-    - Open your web browser and navigate to the link provide right after hitting Catalyst serve
-    - Enter the YouTube video ID/URL in the provided form on the homepage and submit.
-    - View sentiment analysis results, charts, and comments on the results and comments pages.
+2. Open your web browser and navigate to the link provide right after hitting Catalyst serve
+3. Enter the YouTube video ID/URL in the provided form on the homepage and submit.
+4. View sentiment analysis results, charts, and comments on the results and comments pages.
 
 ### Project Structure
 - app.py: Main Flask application file.
