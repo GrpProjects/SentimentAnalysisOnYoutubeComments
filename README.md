@@ -39,7 +39,7 @@ Create a project in Zoho Catalyst and create the resources as below
 
     - META table: Used to store metadata about processed YouTube videos.
     
-        Columns: YID, OSENTIMENT, EFID, TFID. (ROWID: Primary Key and MODIFIEDTIME will be created automatically while creating the table)
+        Columns: YID, OSENTIMENT, EFID, TFID. (ROWID: Primary Key and MODIFIEDTIME will be created automatically while creating the table).
 
     - EMOJICOMMENTS: Used to store comments with emojis.
         
@@ -53,7 +53,7 @@ Create a project in Zoho Catalyst and create the resources as below
 
 1. Install Zoho Catalyst CLI:
 
-   If you haven't installed the Zoho Catalyst CLI, you can do so by following the instructions in the [official documentation](https://www.zoho.com/catalyst/help/cli/cli-installation-guide.html).
+   If you haven't installed the Zoho Catalyst CLI, you can do so by following the instructions in the [official documentation](https://docs.catalyst.zoho.com/en/getting-started/installing-catalyst-cli/).
 
 2. Initialize and Link the Catalyst Project:
 
@@ -67,7 +67,7 @@ Create a project in Zoho Catalyst and create the resources as below
 4. Clone the repository inside the created AppSail folder:
 
    ```bash
-   git clone https://github.com/your-username/YouTube-Sentiment-Analysis.git
+   git clone https://github.com/GrpProjects/SentimentAnalysisOnYoutubeComments.git
 
 5. Set up Environmental Variables:
 
