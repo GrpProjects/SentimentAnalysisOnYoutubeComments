@@ -82,7 +82,7 @@ def process(yid: str):
         results = youtube.commentThreads().list(
             part='snippet',
             videoId=yid,
-            maxResults=100
+            maxResults=50
         ).execute()
 
         for item in results['items']:
